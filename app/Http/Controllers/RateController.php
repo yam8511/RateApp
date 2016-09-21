@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Http\Requests;
+use Auth;
 
 class RateController extends Controller
 {
@@ -13,10 +13,14 @@ class RateController extends Controller
     }
     
     public function index() {
-        return view('rate.index');   
+        return view('rate.index')->with('user', Auth::user());   
     }
 
     public function set() {
+        $user = Auth::user();
+        if ($user->state == 0 || $user->state == 1) {
+            return redirect('/')->with('success', '您不用設定賠率 :)');
+        }
         return view('rate.set');
     }
 

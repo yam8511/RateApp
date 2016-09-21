@@ -37,9 +37,13 @@
       <a href="{{ url('/login') }}">Login</a>
       <a href="{{ url('/register') }}">Register</a>
       @else
+      @if(Auth::user()->state != 0 && Auth::user()->state != 1)
       <a href="{{ url('setRate') }}" >設定賠率</a>
+      @endif
+      @if(Auth::user()->state < 4)
       <a href="{{ url('lookBelow') }}" >查看下層</a>
       <a href="{{ url('addBelow') }}" >新增下層</a>
+      @endif
       <a href="{{ url('/logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
       <form id="logout-form" action="{{ url('/logout') }}" method="POST" style="display: none;">
       {{ csrf_field() }}
