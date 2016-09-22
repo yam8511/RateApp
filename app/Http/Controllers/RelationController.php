@@ -22,10 +22,12 @@ class RelationController extends Controller
         if ($master->state) {
             $ups[] = $master;
             foreach ($master->allBelows() as $below) {
-                $ups[] = $below;
+                if ($below->state < 4) {
+                    $ups[] = $below;
+                }
             }
         } else {
-            $users = User::all();
+            $users = User::whereIn('state', [1, 2, 3])->get();
             foreach ($users as $user) {
                 $ups[] = $user;
             }
@@ -36,6 +38,7 @@ class RelationController extends Controller
     }
 
     public function addProcess(Request $request) {
+
         $master = Auth::user();
         $name = $request->name;
         $email = $request->email;
@@ -55,11 +58,22 @@ class RelationController extends Controller
 
         // Validation
         $this->validate($request, [
-            'name' => 'required|max:255',
-            'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|min:6|confirmed',
-            'state' => 'required|numeric|min:'. $min .'|max:4',
-            'up' => $require . 'numeric|exists:users,id,state,'. ( $state - 1 ),
+                'name' => 'required|max:255',
+                'email' => 'required|email|max:255|unique:users',
+                'password' => 'required|min:6|confirmed',
+                'state' => 'required|numeric|min:'. $min .'|max:4',
+                'up' => $require . 'numeric|exists:users,id,state,'. ( $state - 1 ),
+            ],
+            [
+                'required' => '此欄位需填補',
+                'name.max' => '名稱太長!',
+                'email.unique' => '此帳戶已存在!',
+                'email.email' => '請輸入有效Email',
+                'password.min' => '密碼至少6碼',
+                'password.confirmed' => '請重新輸入密碼, 確認密碼錯誤!',
+                'state.min' => '請選擇對的角色',
+                'state.max' => '請選擇對的角色',
+                'up.exists' => '請選擇對的上層成員'
             ]
         );
 
@@ -100,7 +114,65 @@ class RelationController extends Controller
             }
         }
         
-        return redirect('addBelow')->with('success', '新增成功');
-        
+        return redirect('addBelow')->with('success', '新增成功');   
+    }
+
+    public function look() {
+        $master = Auth::user();
+        if ($master->state > 3) {
+            return redirect('/')->with('error', '你沒有權限');
+        }
+        $roles = ['Super', '廳主', '股東', '代理', '會員'];
+        $belows = [];
+        if ($master->state) {
+            foreach ($master->allBelows() as $below) {
+                $belows[$below->state][] = $below;
+            }
+        }
+        else {
+            $users = User::all();
+            foreach ($users as $user) {
+                $belows[$user->state][] = $user;
+            }
+        }
+        $data = ['master' => $master, 'roles' => $roles, 'belows' => $belows];
+        return view('relation.look', $data);
+    }
+
+    public function seek($id) {
+
+        $master = Auth::user();
+        if ($id == $master->id) {
+            return redirect('lookBelow');
+        }
+
+        $seek = User::find($id);
+        $parent = $seek;
+        $ok = false;
+        // 檢查是否為下層會員
+        while ($parent && $parent->up_id && !$ok) {
+            if (!$master->state) {
+                $ok = true;
+            }
+            if ($parent->up_id->up == $master->id) {
+                $ok = true;
+            }
+            $parent = $parent->up();
+        }
+        if (!$ok) {
+            return redirect('lookBelow')->with('error', '沒有下層會員');
+        }
+
+
+        $roles = ['Super', '廳主', '股東', '代理', '會員'];
+        $belows = [];
+        foreach ($seek->allBelows() as $below) {
+            $belows[$below->state][] = $below;
+        }
+
+        $data = ['master' => $seek, 'roles' => $roles, 'belows' => $belows];
+
+        return view('relation.look', $data);
+
     }
 }

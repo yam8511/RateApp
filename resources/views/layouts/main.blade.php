@@ -37,7 +37,7 @@
       <a href="{{ url('/login') }}">Login</a>
       <a href="{{ url('/register') }}">Register</a>
       @else
-      @if(Auth::user()->state != 0 && Auth::user()->state != 1)
+      @if(Auth::user()->state != 0 && Auth::user()->state != 1 && Auth::user()->state < 4)
       <a href="{{ url('setRate') }}" >設定賠率</a>
       @endif
       @if(Auth::user()->state < 4)

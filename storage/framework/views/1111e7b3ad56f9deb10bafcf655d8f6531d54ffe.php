@@ -1,15 +1,7 @@
-<?php $__env->startSection('title', '新增下層會員'); ?>
+<?php $__env->startSection('title', '新增下層成員'); ?>
 
 <?php $__env->startSection('content'); ?>
-<?php if(count($errors) > 0): ?>
-    <div class="alert alert-danger">
-        <ul>
-            <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getFirstLoop(); ?>
-                <li><?php echo e($error); ?></li>
-            <?php endforeach; $__env->popLoop(); $loop = $__env->getFirstLoop(); ?>
-        </ul>
-    </div>
-<?php endif; ?>
+
 <form method="post" action="<?php echo e(url('addBelow')); ?>">
     <?php echo e(csrf_field()); ?>
 
@@ -18,9 +10,11 @@
         <label class="w3-label">名稱</label>
         <input class="w3-input" type="text" name="name" value="<?php echo e(old('name')); ?>" required autofocus>
         <?php if($errors->has('name')): ?>
-            <span class="w3-text-red">
-                <strong><?php echo e($errors->first('name')); ?></strong>
-            </span>
+            <ul class="w3-text-red w3-ul">
+                <?php $__currentLoopData = $errors->get('name'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getFirstLoop(); ?>
+                    <li><strong><?php echo e($error); ?></li></strong>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getFirstLoop(); ?>
+            </ul>
         <?php endif; ?>
     </div>
 
@@ -28,9 +22,11 @@
         <label class="w3-label">Email</label>
         <input class="w3-input" type="eamil" name="email" value="<?php echo e(old('email')); ?>" required>
         <?php if($errors->has('email')): ?>
-            <span class="w3-text-red">
-                <strong><?php echo e($errors->first('email')); ?></strong>
-            </span>
+            <ul class="w3-text-red w3-ul">
+                <?php $__currentLoopData = $errors->get('email'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getFirstLoop(); ?>
+                    <li><strong><?php echo e($error); ?></li></strong>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getFirstLoop(); ?>
+            </ul>
         <?php endif; ?>
     </div>
 
@@ -38,9 +34,11 @@
         <label class="w3-label">密碼</label>
         <input class="w3-input" type="password" name="password" required>
         <?php if($errors->has('password')): ?>
-            <span class="w3-text-red">
-                <strong><?php echo e($errors->first('password')); ?></strong>
-            </span>
+            <ul class="w3-text-red w3-ul">
+                <?php $__currentLoopData = $errors->get('password'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getFirstLoop(); ?>
+                    <li><strong><?php echo e($error); ?></li></strong>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getFirstLoop(); ?>
+            </ul>
         <?php endif; ?>
     </div>
 
@@ -58,24 +56,31 @@
             <?php endif; ?>
         <?php endfor; ?>
         <?php if($errors->has('state')): ?>
-            <span class="w3-text-red">
-                <strong><?php echo e($errors->first('state')); ?></strong>
-            </span>
+            <ul class="w3-text-red w3-ul">
+                <?php $__currentLoopData = $errors->get('state'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getFirstLoop(); ?>
+                    <li><strong><?php echo e($error); ?></li></strong>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getFirstLoop(); ?>
+            </ul>
         <?php endif; ?>
     </div>
 
     <div class="w3-input-group">
-        <label class="w3-label">上層會員</label>
+        <label class="w3-label">上層成員</label>
         <select class="w3-select" name="up">
-            <option value="0" disabled selected>選擇上層會員</option>
+            <option value="" disabled selected>選擇上層成員</option>
+            <?php if($master == 0 || $master == 1): ?>
+            <option value="">【無】</option>
+            <?php endif; ?>
             <?php $__currentLoopData = $ups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $up): $__env->incrementLoopIndices(); $loop = $__env->getFirstLoop(); ?>
                 <option value="<?php echo e($up->id); ?>">【<?php echo e($roles[$up->state]); ?>】 <?php echo e($up->name); ?> - <?php echo e($up->email); ?></option>
             <?php endforeach; $__env->popLoop(); $loop = $__env->getFirstLoop(); ?>
         </select>
         <?php if($errors->has('up')): ?>
-            <span class="w3-text-red">
-                <strong><?php echo e($errors->first('up')); ?></strong>
-            </span>
+            <ul class="w3-text-red w3-ul">
+                <?php $__currentLoopData = $errors->get('up'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getFirstLoop(); ?>
+                    <li><strong><?php echo e($error); ?></li></strong>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getFirstLoop(); ?>
+            </ul>
         <?php endif; ?>
     </div>
 

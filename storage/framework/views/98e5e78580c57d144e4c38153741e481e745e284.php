@@ -37,7 +37,7 @@
       <a href="<?php echo e(url('/login')); ?>">Login</a>
       <a href="<?php echo e(url('/register')); ?>">Register</a>
       <?php else: ?>
-      <?php if(Auth::user()->state != 0 && Auth::user()->state != 1): ?>
+      <?php if(Auth::user()->state != 0 && Auth::user()->state != 1 && Auth::user()->state < 4): ?>
       <a href="<?php echo e(url('setRate')); ?>" >設定賠率</a>
       <?php endif; ?>
       <?php if(Auth::user()->state < 4): ?>

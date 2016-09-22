@@ -21,6 +21,9 @@ Route::get('addBelow', 'RelationController@add');
 Route::post('addBelow', 'RelationController@addProcess');
 
 Route::get('lookBelow', 'RelationController@look');
+Route::get('seekBelow/{id}', 'RelationController@seek');
 
 Route::get('setRate', 'RateController@set');
+Route::get('setOtherRate/{id}', 'RateController@set');
 Route::post('setRate', 'RateController@setProcess');
+Route::post('synchronize', 'RateController@synchronize');

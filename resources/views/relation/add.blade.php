@@ -1,16 +1,8 @@
 @extends('layouts.main')
-@section('title', '新增下層會員')
+@section('title', '新增下層成員')
 
 @section('content')
-@if (count($errors) > 0)
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+
 <form method="post" action="{{ url('addBelow') }}">
     {{ csrf_field() }}
 
@@ -18,9 +10,11 @@
         <label class="w3-label">名稱</label>
         <input class="w3-input" type="text" name="name" value="{{ old('name') }}" required autofocus>
         @if ($errors->has('name'))
-            <span class="w3-text-red">
-                <strong>{{ $errors->first('name') }}</strong>
-            </span>
+            <ul class="w3-text-red w3-ul">
+                @foreach ($errors->get('name') as $error)
+                    <li><strong>{{ $error }}</li></strong>
+                @endforeach
+            </ul>
         @endif
     </div>
 
@@ -28,9 +22,11 @@
         <label class="w3-label">Email</label>
         <input class="w3-input" type="eamil" name="email" value="{{ old('email') }}" required>
         @if ($errors->has('email'))
-            <span class="w3-text-red">
-                <strong>{{ $errors->first('email') }}</strong>
-            </span>
+            <ul class="w3-text-red w3-ul">
+                @foreach ($errors->get('email') as $error)
+                    <li><strong>{{ $error }}</li></strong>
+                @endforeach
+            </ul>
         @endif
     </div>
 
@@ -38,9 +34,11 @@
         <label class="w3-label">密碼</label>
         <input class="w3-input" type="password" name="password" required>
         @if ($errors->has('password'))
-            <span class="w3-text-red">
-                <strong>{{ $errors->first('password') }}</strong>
-            </span>
+            <ul class="w3-text-red w3-ul">
+                @foreach ($errors->get('password') as $error)
+                    <li><strong>{{ $error }}</li></strong>
+                @endforeach
+            </ul>
         @endif
     </div>
 
@@ -58,24 +56,31 @@
             @endif
         @endfor
         @if ($errors->has('state'))
-            <span class="w3-text-red">
-                <strong>{{ $errors->first('state') }}</strong>
-            </span>
+            <ul class="w3-text-red w3-ul">
+                @foreach ($errors->get('state') as $error)
+                    <li><strong>{{ $error }}</li></strong>
+                @endforeach
+            </ul>
         @endif
     </div>
 
     <div class="w3-input-group">
-        <label class="w3-label">上層會員</label>
+        <label class="w3-label">上層成員</label>
         <select class="w3-select" name="up">
-            <option value="0" disabled selected>選擇上層會員</option>
+            <option value="" disabled selected>選擇上層成員</option>
+            @if($master == 0 || $master == 1)
+            <option value="">【無】</option>
+            @endif
             @foreach ($ups as $up)
                 <option value="{{ $up->id }}">【{{ $roles[$up->state]  }}】 {{ $up->name }} - {{ $up->email }}</option>
             @endforeach
         </select>
         @if ($errors->has('up'))
-            <span class="w3-text-red">
-                <strong>{{ $errors->first('up') }}</strong>
-            </span>
+            <ul class="w3-text-red w3-ul">
+                @foreach ($errors->get('up') as $error)
+                    <li><strong>{{ $error }}</li></strong>
+                @endforeach
+            </ul>
         @endif
     </div>
 
