@@ -9,4 +9,8 @@ class Relation extends Model
     public function user() {
         return $this->hasOne('App\User', 'id', 'id');
     }
+
+    public function parent() {
+        return $this->hasOne('App\User', 'id', 'up');
+    }
 }

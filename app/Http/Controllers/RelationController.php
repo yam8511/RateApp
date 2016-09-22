@@ -21,8 +21,8 @@ class RelationController extends Controller
         $ups = [];
         if ($master->state) {
             $ups[] = $master;
-            foreach ($master->belows as $below) {
-                $ups[] = $below->user;
+            foreach ($master->allBelows() as $below) {
+                $ups[] = $below;
             }
         } else {
             $users = User::all();
