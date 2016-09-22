@@ -15,12 +15,17 @@ class RateController extends Controller
     }
     
     public function index() {
-        return view('rate.index');   
+        return view('rate.index')->with('user', Auth::user());   
     }
 
     public function set() {
         $master = Auth::user();
         $data = ['user' => $master->rate ];
+
+        if ($user->state == 0 || $user->state == 1) {
+            return redirect('/')->with('success', '您不用設定賠率 :)');
+        }
+        
         return view('rate.set', $data);
     }
 

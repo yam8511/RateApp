@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Relation;
+use App\Rate;
 use App\User;
 use Auth;
 
@@ -16,17 +17,21 @@ class RelationController extends Controller
 
     public function add() {
         $roles = ['Super', '廳主', '股東', '代理', '會員'];
-        $user = Auth::user();
+        $master = Auth::user();
         $ups = [];
-        if ($user->state) {
-            $ups[] = $user;
+        if ($master->state) {
+            $ups[] = $master;
+            foreach ($master->belows as $below) {
+                $ups[] = $below->user;
+            }
+        } else {
+            $users = User::all();
+            foreach ($users as $user) {
+                $ups[] = $user;
+            }
         }
 
-        foreach ($user->belows as $below) {
-            $ups[] = $below->user;
-        }        
-
-        $data = ['ups' => $ups, 'roles' => $roles, 'master' => $user->state ];
+        $data = ['ups' => $ups, 'roles' => $roles, 'master' => $master->state ];
         return view('relation.add', $data);
     }
 
@@ -68,13 +73,30 @@ class RelationController extends Controller
             return redirect('addBelow')->with('error', '新增失敗');
         }
 
+        // 如果不是Super或廳主, 必須新增上層
         if ($state != 0 && $state != 1) {
             $relation = new Relation();
             $relation->id = $user->id;
             $relation->up = $up;
+            
             if (!$relation->save()) {
                 $user->delete();
                 return redirect('addBelow')->with('error', '層級新增失敗');
+            }
+            
+            // 如果是新增股東， 則必須新增賠率資料
+            if ($state == 2) {
+                $rate = new Rate();
+                $rate->id = $user->id;
+                $rate->bg = 0;
+                $rate->sg = 0;
+                $rate->bb = 0;
+                $rate->sb = 0;
+                if (!$rate->save()) {
+                    $user->delete();
+                    $relation->delete();
+                    return redirect('addBelow')->with('error', '賠率設定失敗');
+                }
             }
         }
         

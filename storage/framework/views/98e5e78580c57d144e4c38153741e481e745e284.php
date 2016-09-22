@@ -37,9 +37,13 @@
       <a href="<?php echo e(url('/login')); ?>">Login</a>
       <a href="<?php echo e(url('/register')); ?>">Register</a>
       <?php else: ?>
+      <?php if(Auth::user()->state != 0 && Auth::user()->state != 1): ?>
       <a href="<?php echo e(url('setRate')); ?>" >設定賠率</a>
+      <?php endif; ?>
+      <?php if(Auth::user()->state < 4): ?>
       <a href="<?php echo e(url('lookBelow')); ?>" >查看下層</a>
       <a href="<?php echo e(url('addBelow')); ?>" >新增下層</a>
+      <?php endif; ?>
       <a href="<?php echo e(url('/logout')); ?>" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
       <form id="logout-form" action="<?php echo e(url('/logout')); ?>" method="POST" style="display: none;">
       <?php echo e(csrf_field()); ?>
