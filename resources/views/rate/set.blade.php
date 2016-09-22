@@ -14,8 +14,6 @@
 
     <div class="w3-row-padding w3-margin">
         <div class="w3-col m6">
-            <label class="w3-label">單場最大賠率</label>
-            <input class="w3-input" type="number" name="bg" value="{{ $user->rate()->bg or 0 }}" required>
             @if ($errors->has('bg'))
                 <ul class="w3-text-red w3-ul">
                     @foreach ($errors->get('bg') as $error)
@@ -23,11 +21,11 @@
                     @endforeach
                 </ul>
             @endif
+            <label class="w3-label">單場最大賠率</label>
+            <input class="w3-input" type="number" name="bg" value="{{ $user->rate()->bg or 0 }}" min="0" max="{{ $user->up()->rate()->bg or 999999}}" required>
         </div>
 
         <div class="w3-col m6">
-            <label class="w3-label">單場最小賠率</label>
-            <input class="w3-input" type="number" name="sg" value="{{ $user->rate()->sg or 0 }}" required>
             @if ($errors->has('sg'))
                 <ul class="w3-text-red w3-ul">
                     @foreach ($errors->get('sg') as $error)
@@ -35,11 +33,13 @@
                     @endforeach
                 </ul>
             @endif
+            <label class="w3-label">單場最小賠率</label>
+            <input class="w3-input" type="number" name="sg" value="{{ $user->rate()->sg or 0 }}" min="0" max="{{ $user->up()->rate()->sg or 999999}}" required>
         </div>
 
         <div class="w3-col m6">
             <label class="w3-label">單注最大賠率</label>
-            <input class="w3-input" type="number" name="bb" value="{{ $user->rate()->bb or 0 }}" required>
+            <input class="w3-input" type="number" name="bb" value="{{ $user->rate()->bb or 0 }}" min="0" max="{{ $user->up()->rate()->bb or 999999}}" required>
             @if ($errors->has('bb'))
                 <ul class="w3-text-red w3-ul">
                     @foreach ($errors->get('bb') as $error)
@@ -51,7 +51,7 @@
 
         <div class="w3-col m6">
             <label class="w3-label">單注最小賠率</label>
-            <input class="w3-input" type="number" name="sb" value="{{ $user->rate()->sb or 0 }}" required>
+            <input class="w3-input" type="number" name="sb" value="{{ $user->rate()->sb or 0 }}" min="0" max="{{ $user->up()->rate()->sb or 999999 }}" required>
             @if ($errors->has('sb'))
                 <ul class="w3-text-red w3-ul">
                     @foreach ($errors->get('sb') as $error)

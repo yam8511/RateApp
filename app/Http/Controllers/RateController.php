@@ -44,6 +44,7 @@ class RateController extends Controller
                 return redirect('lookBelow')->with('error', '沒有下層會員');
             }
             $master = $seek;
+
             $data = ['user' => $master, 'response' => url('seekBelow/'. $master->up_id->up) ];
         }
 
@@ -60,14 +61,6 @@ class RateController extends Controller
         $bb = $request->bb;
         $sb = $request->sb;
 
-        $this->validate($request, [
-            'sb' => 'required|numeric|min:0|max:'. $bb,
-            'bb' => 'required|numeric|min:0|max:'. $sg,
-            'sg' => 'required|numeric|min:0|max:'. $bg,
-            'bg' => 'required|numeric|min:0|max:999999',
-            ]
-        );
-
         $response = 'setRate';
         if ($request->has('id')) {
             $master = User::find($request->id);
@@ -78,6 +71,20 @@ class RateController extends Controller
                 $response = 'seekBelow/'. $master->up_id->up;
             }
         }
+
+        $this->validate($request, [
+                'sb' => 'required|numeric|min:0|max:'. $bb,
+                'bb' => 'required|numeric|min:0|max:'. $sg,
+                'sg' => 'required|numeric|min:0|max:'. $bg,
+                'bg' => 'required|numeric|min:0|max:'. ($master->up() ? $master->up()->rate()->bg : 999999) ,
+            ],
+            [
+                'numeric' => '請輸入數字！',
+                'required' => '此欄位需填補',
+                'max' => '賠率不能大於 :max',
+                'min' => '不能為負數',
+            ]
+        );
 
         $father = $master->up()->rate();
         $self_rate = $master->self_rate;
@@ -94,8 +101,10 @@ class RateController extends Controller
                 $OK = $this->saveRate($request, $master);
             }
             # 與上層賠率相同
-            else if($self_rate && !$self_rate->delete()){
-                $OK = false;
+            elseif($self_rate) {
+                if(!$self_rate->delete()) {
+                    $OK = false;
+                }
             }
         }
 

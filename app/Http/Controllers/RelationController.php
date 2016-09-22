@@ -149,16 +149,19 @@ class RelationController extends Controller
         $seek = User::find($id);
         $parent = $seek;
         $ok = false;
+        
+        if (!$master->state && $parent) {
+            $ok = true;
+        }
+        
         // 檢查是否為下層會員
-        while ($parent && $parent->up_id && !$ok) {
-            if (!$master->state) {
-                $ok = true;
-            }
+        while ($parent && $parent->state > 1 && !$ok) {
             if ($parent->up_id->up == $master->id) {
                 $ok = true;
             }
             $parent = $parent->up();
         }
+
         if (!$ok) {
             return redirect('lookBelow')->with('error', '沒有下層會員');
         }
