@@ -11,7 +11,7 @@
 <a href="{{ url('/') }}" class="w3-btn-floating w3-teal"><i class="fa fa-home"></i></a>
 @if($master->id != Auth::user()->id)
 <a href="{{ url('lookBelow') }}" class="w3-btn-floating w3-green"><i class="fa fa-mail-reply"></i></a>
-<h1 class="w3-xxlarge "><a href="{{ $master->up_id ? url('seekBelow/'. $master->up_id->up) : ''}}" style="text-decoration: none;" class="w3-hover-text-theme">{{ $master->name }}</a> 以下層級</h1>
+<h1 class="w3-xxlarge "><a href="{{ $master->up_id ? url('seekBelow/'. $master->up_id->up) : url('lookBelow') }}" style="text-decoration: none;" class="w3-hover-text-theme">{{ $master->name }}</a> 以下層級</h1>
 @endif
 
 <ul class="w3-navbar w3-theme">

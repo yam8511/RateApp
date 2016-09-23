@@ -76,7 +76,7 @@ class RateController extends Controller
                 'sb' => 'required|numeric|min:0|max:'. $bb,
                 'bb' => 'required|numeric|min:0|max:'. $sg,
                 'sg' => 'required|numeric|min:0|max:'. $bg,
-                'bg' => 'required|numeric|min:0|max:'. ($master->up() ? $master->up()->rate()->bg : 999999) ,
+                'bg' => 'required|numeric|min:0|max:'. ($master->up()->rate() ? $master->up()->rate()->bg : 999999) ,
             ],
             [
                 'numeric' => '請輸入數字！',

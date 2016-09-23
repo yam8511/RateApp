@@ -16,8 +16,11 @@ class RelationController extends Controller
     }
 
     public function add() {
-        $roles = ['Super', '廳主', '股東', '代理', '會員'];
         $master = Auth::user();
+        if ($master->state > 3) {
+            return redirect('/')->with('error', '你沒有權限');
+        }
+        $roles = ['Super', '廳主', '股東', '代理', '會員'];
         $ups = [];
         if ($master->state) {
             $ups[] = $master;
@@ -40,6 +43,7 @@ class RelationController extends Controller
     public function addProcess(Request $request) {
 
         $master = Auth::user();
+
         $name = $request->name;
         $email = $request->email;
         $password = $request->password;
@@ -76,6 +80,26 @@ class RelationController extends Controller
                 'up.exists' => '請選擇對的上層成員'
             ]
         );
+
+        #檢查新增的上層會員是不是屬於自己的
+        $seek = User::find($request->up);
+        $ok = false;
+        
+        if ((!$master->state || $request->up == $master->id) && $seek) {
+            $ok = true;
+        }
+        
+        // 檢查是否為下層會員
+        while (!$ok && $seek && $seek->state > $master->state) {
+            if ($seek->id == $master->id) {
+                $ok = true;
+            }
+            $seek = $seek->up();
+        }
+
+        if (!$ok) {
+            return redirect('addBelow')->with('error', '上層會員有誤');
+        }
 
         $user = new User();
         $user->name = $name;

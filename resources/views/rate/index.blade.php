@@ -3,7 +3,7 @@
 
 @section('content')
 <h1>Hello, {{ $user->name }}</h1>
-@if($user->state > 1 && $user->state < 4)
+@if($user->state > 1 && $user->state < 5)
     <ul class="w3-ul w3-border">
         <li class="w3-theme w3-xxlarge">目前賠率限額</li>
         <li class="w3-xlarge">單場最大賠率: {{ $user->rate()->bg }}</li>

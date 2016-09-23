@@ -2,7 +2,7 @@
 
 <?php $__env->startSection('content'); ?>
 <h1>Hello, <?php echo e($user->name); ?></h1>
-<?php if($user->state > 1 && $user->state < 4): ?>
+<?php if($user->state > 1 && $user->state < 5): ?>
     <ul class="w3-ul w3-border">
         <li class="w3-theme w3-xxlarge">目前賠率限額</li>
         <li class="w3-xlarge">單場最大賠率: <?php echo e($user->rate()->bg); ?></li>
