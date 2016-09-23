@@ -16,8 +16,26 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
 
     return [
         'name' => $faker->name,
-        'email' => $faker->unique()->safeEmail,
-        'password' => $password ?: $password = bcrypt('secret'),
+        'email' => $faker->email,
+        'password' => bcrypt(123456),
         'remember_token' => str_random(10),
+        'state' => $faker->state
+    ];
+});
+
+$factory->define(App\Rate::class, function (Faker\Generator $faker) {
+    return [
+        'id' => $faker->state,
+        'bg' => $faker->state,
+        'sg' => $faker->state,
+        'bb' => $faker->state,
+        'sb' => $faker->state,
+    ];
+});
+
+$factory->define(App\Relation::class, function (Faker\Generator $faker) {
+    return [
+        'id' => $faker->state,
+        'up' => $faker->state,
     ];
 });
