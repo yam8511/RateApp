@@ -16,7 +16,7 @@
         @if($below->state && $below->state < 4)
           <a href="{{ url('seekBelow/' . $below->id) }}">{{ $below->name }}</a>
         @else
-          {{ $below->name }}
+          <a href="{{ url('seekBelow/' . $below->up_id->up) }}">{{ $below->name }}</a>
         @endif
       </td>
       <td>{{ $below->rate()->bg or ''}}</td>
