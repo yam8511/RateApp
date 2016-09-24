@@ -51,37 +51,11 @@ class RelationController extends Controller
         $up = $request->up;
         
         $min = 0;
-        $require = 'required|';
+        $require = '';
+
         if ($master->state) {
             $min = $master->state + 1;
-        }
-
-        if ($state == 0) {
-            $require = '';
-        } else {
-            if ($state == 1) {
-                $require = '';
-            }
-
-            #檢查新增的上層會員是不是屬於自己的
-            $seek = User::find($request->up);
-            $ok = false;
-            
-            if ((!$master->state || $request->up == $master->id) && $seek) {
-                $ok = true;
-            }
-            
-            // 檢查是否為下層會員
-            while (!$ok && $seek && $seek->state > $master->state) {
-                if ($seek->id == $master->id) {
-                    $ok = true;
-                }
-                $seek = $seek->up();
-            }
-
-            if (!$ok) {
-                return redirect('addBelow')->with('error', '上層會員有誤');
-            }
+            $require = 'required|';
         }
 
         // Validation
@@ -104,6 +78,29 @@ class RelationController extends Controller
                 'up.exists' => '請選擇對的上層成員'
             ]
         );
+
+        if ($master->state) {
+            #自己的下一層
+            if ($master->state == $state - 1) {
+                if ($master->id != $up) {
+                    return redirect('addBelow')->with('error', '上層會員有誤');
+                }
+            }
+            else {
+                $ok = false;
+                $upper = User::find($up);
+                while (!$ok && ($upper->state >= $master->state)) {
+                    if ($upper->id == $master->id) {
+                        $ok = true;
+                    }
+                    $upper = $upper->up();
+                }
+
+                if (!$ok) {
+                    return redirect('addBelow')->with('error', '上層會員有誤');
+                }
+            }
+        }
 
         $user = new User();
         $user->name = $name;

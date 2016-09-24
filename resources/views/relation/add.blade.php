@@ -68,7 +68,7 @@
         <label class="w3-label">上層成員</label>
         <select class="w3-select" name="up">
             <option value="" disabled selected>選擇上層成員</option>
-            @if($master == 0 || $master == 1)
+            @if($master == 0)
             <option value="">【無】</option>
             @endif
             @foreach ($ups as $up)

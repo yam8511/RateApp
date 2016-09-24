@@ -63,9 +63,9 @@
     </div>
 
     <div class="w3-input-group w3-center">
-        <button class="w3-btn w3-round w3-theme-d1 w3-ripple">儲存</button>
+        <button name="Save" class="w3-btn w3-round w3-theme-d1 w3-ripple">儲存</button>
         @if($user->id == Auth::user()->id)
-        <button onclick="event.preventDefault(); document.getElementById('synchronize').submit()" class="w3-btn w3-round w3-theme-d3 w3-ripple">同步</button>
+        <button name="Syn" onclick="event.preventDefault(); document.getElementById('synchronize').submit()" class="w3-btn w3-round w3-theme-d3 w3-ripple">同步</button>
         @endif
         <a href="{{ $response or url('/') }}" class="w3-btn w3-round w3-theme-d5 w3-ripple">回上層</a>
     </div>

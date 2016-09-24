@@ -68,7 +68,7 @@
         <label class="w3-label">上層成員</label>
         <select class="w3-select" name="up">
             <option value="" disabled selected>選擇上層成員</option>
-            <?php if($master == 0 || $master == 1): ?>
+            <?php if($master == 0): ?>
             <option value="">【無】</option>
             <?php endif; ?>
             <?php $__currentLoopData = $ups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $up): $__env->incrementLoopIndices(); $loop = $__env->getFirstLoop(); ?>

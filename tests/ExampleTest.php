@@ -40,7 +40,9 @@ class ExampleTest extends TestCase
         ];    
 
         foreach ($registers as $register) {
-            $this->users[] = factory(App\User::class)->create($register)->save();
+            $user = factory(App\User::class)->create($register);
+            $this->users[] = $user;
+            $user->save();
         }
 
         $rates = [
@@ -158,12 +160,9 @@ class ExampleTest extends TestCase
      */
     public function testLook()
     {
-        $this->visit('/login')
-            ->type('zoular.li@gmail.com', 'email')
-            ->type('123456', 'password')
-            ->press('Login')
-            ->click('查看下層')
-            ->see('Zoular')
+        $this->actingAs($this->users[0])
+            ->visit('/lookBelow')
+            ->see('Super')
             ->click('廳主')
             ->see('hall01')
             ->click('股東')
@@ -171,14 +170,10 @@ class ExampleTest extends TestCase
             ->click('代理')
             ->see('agent01')
             ->click('會員')
-            ->see('mem01')
-            ->post('/logout', ['_token' => csrf_token()])
+            ->see('mem01');
 
-            ->visit('/login')
-            ->type('hall01@gmail.com', 'email')
-            ->type('123456', 'password')
-            ->press('Login')
-            ->click('查看下層')
+        $this->actingAs($this->users[1])
+            ->visit('/lookBelow')
             ->dontSee('Super')
             ->dontSee('廳主')
             ->click('股東')
@@ -186,42 +181,30 @@ class ExampleTest extends TestCase
             ->click('代理')
             ->see('agent01')
             ->click('會員')
-            ->see('mem01')
-            ->post('/logout', ['_token' => csrf_token()])
+            ->see('mem01');
 
-            ->visit('/login')
-            ->type('corp01@gmail.com', 'email')
-            ->type('123456', 'password')
-            ->press('Login')
-            ->click('查看下層')
+        $this->actingAs($this->users[2])
+            ->visit('/lookBelow')
             ->dontSee('Super')
             ->dontSee('廳主')
             ->dontSee('股東')
             ->click('代理')
             ->see('agent01')
             ->click('會員')
-            ->see('mem01')
-            ->post('/logout', ['_token' => csrf_token()])
+            ->see('mem01');
 
-            ->visit('/login')
-            ->type('agent01@gmail.com', 'email')
-            ->type('123456', 'password')
-            ->press('Login')
-            ->click('查看下層')
+        $this->actingAs($this->users[3])
+            ->visit('/lookBelow')
             ->dontSee('Super')
             ->dontSee('廳主')
             ->dontSee('股東')
             ->dontSee('代理')
             ->click('會員')
-            ->see('mem01')
-            ->post('/logout', ['_token' => csrf_token()])
+            ->see('mem01');
 
-            ->visit('/login')
-            ->type('mem01@gmail.com', 'email')
-            ->type('123456', 'password')
-            ->press('Login')
+        $this->actingAs($this->users[4])
             ->call('GET', '/lookBelow');
-            $this->assertRedirectedTo('/', $with = []);
+        $this->assertRedirectedTo('/', $with = []);
     }
 
     /**
@@ -231,70 +214,58 @@ class ExampleTest extends TestCase
      */
     public function testAddBelow()
     {
-        $this->visit('/login')
-            ->type('zoular.li@gmail.com', 'email')
-            ->type('123456', 'password')
-            ->press('Login')
-            ->click('查看下層')
-            ->see('Zoular')
-            ->click('廳主')
-            ->see('hall01')
-            ->click('股東')
-            ->see('corp01')
-            ->click('代理')
-            ->see('agent01')
-            ->click('會員')
-            ->see('mem01')
-            ->post('/logout', ['_token' => csrf_token()])
+        $user = ['super','hall','corp', 'agent', 'mem'];
+        $index = [2,2,2,2,2];
+        $domain = '@gmail.com';
+        for ($u=0; $u < 5; $u++) {
 
-            ->visit('/login')
-            ->type('hall01@gmail.com', 'email')
-            ->type('123456', 'password')
-            ->press('Login')
-            ->click('查看下層')
-            ->dontSee('Super')
-            ->dontSee('廳主')
-            ->click('股東')
-            ->see('corp01')
-            ->click('代理')
-            ->see('agent01')
-            ->click('會員')
-            ->see('mem01')
-            ->post('/logout', ['_token' => csrf_token()])
+            $this->actingAs($this->users[$u]);
 
-            ->visit('/login')
-            ->type('corp01@gmail.com', 'email')
-            ->type('123456', 'password')
-            ->press('Login')
-            ->click('查看下層')
-            ->dontSee('Super')
-            ->dontSee('廳主')
-            ->dontSee('股東')
-            ->click('代理')
-            ->see('agent01')
-            ->click('會員')
-            ->see('mem01')
-            ->post('/logout', ['_token' => csrf_token()])
+            for ($i=$u; $i < 4; $i++) { 
+                if ($u > 0 && $i == $u) {
+                    $this->visit('/addBelow')
+                    ->type($user[$i].$index[$i], 'name')
+                    ->type($user[$i].$index[$i].$domain, 'email')
+                    ->type('123456', 'password')
+                    ->type('123456', 'password_confirmation')
+                    ->select($i+1, 'state');
+                    $this->call('POST', '/addBelow', [
+                        'name' => $user[$i].$index[$i],
+                        'email' => $user[$i].$index[$i].$domain,
+                        'password' => '123456',
+                        'password_confirmation' => '123456',
+                        'state' => $i + 1,
+                        'up' => $u + 6,
+                    ]);
+                    $this->assertRedirectedTo('/addBelow', ['error' => '上層會員有誤']);
+                }
+                else {
+                    $this->visit('/addBelow')
+                    ->type($user[$i].$index[$i], 'name')
+                    ->type($user[$i].$index[$i].$domain, 'email')
+                    ->type('123456', 'password')
+                    ->type('123456', 'password_confirmation')
+                    ->select($i, 'state');
+                    
+                    if ($i > 1) {
+                        $this->select($i, 'up');
+                    } else {
+                        $this->select('', 'up');
+                    }
+                    $this->press('新增下層')
+                    ->see('新增成功')
+                    ->seeInDatabase('users', [
+                        'name' => $user[$i].$index[$i],
+                        'email' => $user[$i].$index[$i].$domain,
+                        'state' => $i
+                    ]);
+                }
+            }
 
-            ->visit('/login')
-            ->type('agent01@gmail.com', 'email')
-            ->type('123456', 'password')
-            ->press('Login')
-            ->click('查看下層')
-            ->dontSee('Super')
-            ->dontSee('廳主')
-            ->dontSee('股東')
-            ->dontSee('代理')
-            ->click('會員')
-            ->see('mem01')
-            ->post('/logout', ['_token' => csrf_token()])
-
-            ->visit('/login')
-            ->type('mem01@gmail.com', 'email')
-            ->type('123456', 'password')
-            ->press('Login')
-            ->call('GET', '/lookBelow');
-            $this->assertRedirectedTo('/', $with = []);
+            foreach ($index as $key => $value) {
+                $index[$key]++;
+            }
+        }
     }
 
     /**
@@ -304,70 +275,69 @@ class ExampleTest extends TestCase
      */
     public function testSetRate()
     {
-        $this->visit('/login')
-            ->type('zoular.li@gmail.com', 'email')
-            ->type('123456', 'password')
-            ->press('Login')
-            ->click('查看下層')
-            ->see('Zoular')
-            ->click('廳主')
-            ->see('hall01')
-            ->click('股東')
-            ->see('corp01')
-            ->click('代理')
-            ->see('agent01')
-            ->click('會員')
-            ->see('mem01')
-            ->post('/logout', ['_token' => csrf_token()])
+        $this->actingAs($this->users[2])
+        ->visit('/setRate')
+        ->seePageIs('/setRate')
+        ->type(500, 'bg')
+        ->type(400, 'sg')
+        ->type(300, 'bb')
+        ->type(200, 'sb')
+        ->press('儲存')
+        ->see('設定成功')
+        ->seeInDatabase('rates', [
+            'id' => 3,
+            'bg' => 500,
+            'sg' => 400,
+            'bb' => 300,
+            'sb' => 200,
+        ]);
 
-            ->visit('/login')
-            ->type('hall01@gmail.com', 'email')
-            ->type('123456', 'password')
-            ->press('Login')
-            ->click('查看下層')
-            ->dontSee('Super')
-            ->dontSee('廳主')
-            ->click('股東')
-            ->see('corp01')
-            ->click('代理')
-            ->see('agent01')
-            ->click('會員')
-            ->see('mem01')
-            ->post('/logout', ['_token' => csrf_token()])
+        $this->actingAs($this->users[3])
+        ->visit('/setRate')
+        ->seePageIs('/setRate')
+        ->type(400, 'bg')
+        ->type(300, 'sg')
+        ->type(200, 'bb')
+        ->type(100, 'sb')
+        ->press('儲存')
+        ->see('設定成功')
+        ->seeInDatabase('rates', [
+            'id' => 4,
+            'bg' => 400,
+            'sg' => 300,
+            'bb' => 200,
+            'sb' => 100,
+        ]);
 
-            ->visit('/login')
-            ->type('corp01@gmail.com', 'email')
-            ->type('123456', 'password')
-            ->press('Login')
-            ->click('查看下層')
-            ->dontSee('Super')
-            ->dontSee('廳主')
-            ->dontSee('股東')
-            ->click('代理')
-            ->see('agent01')
-            ->click('會員')
-            ->see('mem01')
-            ->post('/logout', ['_token' => csrf_token()])
+        $this->actingAs($this->users[3])
+        ->visit('/setRate')
+        ->seePageIs('/setRate')
+        ->type(400, 'bg')
+        ->type(300, 'sg')
+        ->type(200, 'bb')
+        ->type(100, 'sb')
+        ->press('儲存')
+        ->see('設定成功')
+        ->seeInDatabase('rates', [
+            'id' => 4,
+            'bg' => 400,
+            'sg' => 300,
+            'bb' => 200,
+            'sb' => 100,
+        ]);
 
-            ->visit('/login')
-            ->type('agent01@gmail.com', 'email')
-            ->type('123456', 'password')
-            ->press('Login')
-            ->click('查看下層')
-            ->dontSee('Super')
-            ->dontSee('廳主')
-            ->dontSee('股東')
-            ->dontSee('代理')
-            ->click('會員')
-            ->see('mem01')
-            ->post('/logout', ['_token' => csrf_token()])
-
-            ->visit('/login')
-            ->type('mem01@gmail.com', 'email')
-            ->type('123456', 'password')
-            ->press('Login')
-            ->call('GET', '/lookBelow');
-            $this->assertRedirectedTo('/', $with = []);
+        $this->actingAs($this->users[2])
+        ->visit('/setRate')
+        ->seePageIs('/setRate')
+        ->press('同步');
+        
+        $this->actingAs($this->users[3])
+        ->visit('/setRate')
+        ->seePageIs('/setRate')
+        ->see('500')
+        ->see('400')
+        ->see('300')
+        ->see('200');
     }
 
     /**
@@ -377,69 +347,21 @@ class ExampleTest extends TestCase
      */
     public function testSetBelowRate()
     {
-        $this->visit('/login')
-            ->type('zoular.li@gmail.com', 'email')
-            ->type('123456', 'password')
-            ->press('Login')
-            ->click('查看下層')
-            ->see('Zoular')
-            ->click('廳主')
-            ->see('hall01')
-            ->click('股東')
-            ->see('corp01')
-            ->click('代理')
-            ->see('agent01')
-            ->click('會員')
-            ->see('mem01')
-            ->post('/logout', ['_token' => csrf_token()])
-
-            ->visit('/login')
-            ->type('hall01@gmail.com', 'email')
-            ->type('123456', 'password')
-            ->press('Login')
-            ->click('查看下層')
-            ->dontSee('Super')
-            ->dontSee('廳主')
-            ->click('股東')
-            ->see('corp01')
-            ->click('代理')
-            ->see('agent01')
-            ->click('會員')
-            ->see('mem01')
-            ->post('/logout', ['_token' => csrf_token()])
-
-            ->visit('/login')
-            ->type('corp01@gmail.com', 'email')
-            ->type('123456', 'password')
-            ->press('Login')
-            ->click('查看下層')
-            ->dontSee('Super')
-            ->dontSee('廳主')
-            ->dontSee('股東')
-            ->click('代理')
-            ->see('agent01')
-            ->click('會員')
-            ->see('mem01')
-            ->post('/logout', ['_token' => csrf_token()])
-
-            ->visit('/login')
-            ->type('agent01@gmail.com', 'email')
-            ->type('123456', 'password')
-            ->press('Login')
-            ->click('查看下層')
-            ->dontSee('Super')
-            ->dontSee('廳主')
-            ->dontSee('股東')
-            ->dontSee('代理')
-            ->click('會員')
-            ->see('mem01')
-            ->post('/logout', ['_token' => csrf_token()])
-
-            ->visit('/login')
-            ->type('mem01@gmail.com', 'email')
-            ->type('123456', 'password')
-            ->press('Login')
-            ->call('GET', '/lookBelow');
-            $this->assertRedirectedTo('/', $with = []);
+        $this->actingAs($this->users[0])
+        ->visit('/setOtherRate/4')
+        ->seePageIs('/setOtherRate/4')
+        ->type(400, 'bg')
+        ->type(300, 'sg')
+        ->type(200, 'bb')
+        ->type(100, 'sb')
+        ->press('儲存')
+        ->see('設定成功')
+        ->seeInDatabase('rates', [
+            'id' => 4,
+            'bg' => 400,
+            'sg' => 300,
+            'bb' => 200,
+            'sb' => 100,
+        ]);
     }
 }
